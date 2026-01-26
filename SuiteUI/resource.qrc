@@ -3,15 +3,15 @@
         <file>translations/app_es.qm</file>
     </qresource>
     <qresource prefix="/icons">
-        <file>info.png</file>
-        <file>open.png</file>
-        <file>favorito.png</file>
-        <file>favoritoOFF.png</file>
-        <file>download.png</file>
-        <file>delete.png</file>
-        <file>back.png</file>
-        <file>find.png</file>
-        <file>logo.png</file>
-        <file>ajustes.png</file>
+        <file>icons/info.png</file>
+        <file>icons/open.png</file>
+        <file>icons/favorito.png</file>
+        <file>icons/favoritoOFF.png</file>
+        <file>icons/download.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/back.png</file>
+        <file>icons/find.png</file>
+        <file>icons/logo.png</file>
+        <file>icons/ajustes.png</file>
     </qresource>
 </RCC>

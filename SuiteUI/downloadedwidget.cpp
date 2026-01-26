@@ -102,9 +102,20 @@ void DownloadedWidget::setupConnections() {
     // Favoritos: el delegado emite favoriteToggled con el QModelIndex visual.
     // Aquí mapeamos/actuamos sobre el PictureManager por nombre (simplificación existente).
     connect(m_delegate, &ImageCardDelegate::favoriteToggled, this, [this](const QModelIndex &idx){
-        // Nota: el índice del delegado viene en coordenadas del proxy. Mantenemos la lógica
-        // original que alterna favorito por nombre (toggleFavoriteByName).
-        m_pictureManager->toggleFavoriteByName(idx.data().toString());
+        QModelIndex sourceIdx = m_downloadedProxy->mapToSource(idx);
+        if (!sourceIdx.isValid() || !m_pictureManager) return;
+        QString url = sourceIdx.data(ItemUrlRole).toString();
+        if (url.isEmpty()) return;
+
+        // Buscar en PictureManager por URL y alternar favorito
+        for (int i = 0; i < m_pictureManager->allPictures().size(); ++i) {
+            const Picture &p = m_pictureManager->allPictures().at(i);
+            if (p.url() == url) {
+                m_pictureManager->toggleFavorite(i); // si tienes toggleFavorite por índice en allPictures
+                // Si no existe toggleFavorite por índice, puedes añadir toggleFavoriteByName(url) o una función toggleFavoriteByUrl(url)
+                break;
+            }
+        }
         refreshList();
     });
 
@@ -112,8 +123,15 @@ void DownloadedWidget::setupConnections() {
     connect(m_delegate, &ImageCardDelegate::infoRequested, this, [this](const QModelIndex &idx){
         QModelIndex sourceIdx = m_downloadedProxy->mapToSource(idx);
         if (sourceIdx.isValid() && m_pictureManager) {
-            const auto &pic = m_pictureManager->downloaded().at(sourceIdx.row());
-            QMessageBox::information(this, tr("Info"), tr("Nombre: %1\nURL: %2").arg(pic.nombre(), pic.url()));
+            QString url = sourceIdx.data(ItemUrlRole).toString();
+            if (url.isEmpty()) return;
+            // Buscar Picture en PictureManager::downloaded() por URL
+            for (const auto &pic : m_pictureManager->downloaded()) {
+                if (pic.url() == url) {
+                    QMessageBox::information(this, tr("Info"), tr("Nombre: %1\nURL: %2").arg(pic.nombre(), pic.url()));
+                    break;
+                }
+            }
         }
     });
 
@@ -121,13 +139,20 @@ void DownloadedWidget::setupConnections() {
     connect(m_delegate, &ImageCardDelegate::doubleClicked, this, [this](const QModelIndex &idx){
         QModelIndex sourceIdx = m_downloadedProxy->mapToSource(idx);
         if (sourceIdx.isValid() && m_pictureManager) {
-            bool expired = sourceIdx.data(ImageCardDelegate::ExpiredRole).toBool();
-            if (expired) {
-                QMessageBox::warning(this, tr("Caducada"), tr("Esta imagen ha caducado y no se puede abrir."));
-                return;
+            QString url = sourceIdx.data(ItemUrlRole).toString();
+            if (url.isEmpty()) return;
+            // Localizar la Picture correspondiente
+            for (const auto &pic : m_pictureManager->downloaded()) {
+                if (pic.url() == url) {
+                    bool expired = pic.expirationDate().isValid() && pic.expirationDate() < QDate::currentDate();
+                    if (expired) {
+                        QMessageBox::warning(this, tr("Caducada"), tr("Esta imagen ha caducado y no se puede abrir."));
+                        return;
+                    }
+                    emit openPicture(pic);
+                    break;
+                }
             }
-            const auto &pic = m_pictureManager->downloaded().at(sourceIdx.row());
-            emit openPicture(pic);
         }
     });
 
@@ -135,8 +160,15 @@ void DownloadedWidget::setupConnections() {
     connect(m_delegate, &ImageCardDelegate::deleteRequested, this, [this](const QModelIndex &idx){
         QModelIndex sourceIdx = m_downloadedProxy->mapToSource(idx);
         if (sourceIdx.isValid() && m_pictureManager) {
-            const auto &pic = m_pictureManager->downloaded().at(sourceIdx.row());
-            m_pictureManager->removeDownloaded(pic);
+            QString url = sourceIdx.data(ItemUrlRole).toString();
+            if (url.isEmpty()) return;
+            // Buscar en m_pictureManager::downloaded() por URL y solicitar eliminación
+            for (const auto &pic : m_pictureManager->downloaded()) {
+                if (pic.url() == url) {
+                    m_pictureManager->removeDownloaded(pic);
+                    break;
+                }
+            }
         }
     });
 
@@ -188,6 +220,11 @@ void DownloadedWidget::refreshList() {
 
         QStandardItem* item = new QStandardItem(displayName);
         item->setData(QIcon(pic.url()), Qt::DecorationRole);
+
+        // Guardamos datos "puros" para referencia segura
+        item->setData(pic.url(), ItemUrlRole);     // identificador único
+        item->setData(pic.nombre(), ItemNameRole); // nombre puro (sin sufijo)
+
         item->setData(pic.favorito(), ImageCardDelegate::FavoriteRole);
         item->setData(true, ImageCardDelegate::DownloadedRole);
         item->setData(-1, ImageCardDelegate::ProgressRole);
@@ -263,7 +300,6 @@ void DownloadedWidget::disableDragDrop(QAbstractItemView* view) {
  */
 void DownloadedWidget::onDownloadProgress(int progress, const QString& pictureName) {
     if (progress == -1) {
-        // Progreso terminado: refrescar con pequeño delay para dejar que otras operaciones finalicen
         QTimer::singleShot(150, this, [this]() {
             refreshList();
             emit pictureDeleted();
@@ -271,19 +307,17 @@ void DownloadedWidget::onDownloadProgress(int progress, const QString& pictureNa
         return;
     }
 
-    // Buscar el ítem correspondiente en el modelo y actualizar su rol ProgressRole
     for (int i = 0; i < m_downloadedModel->rowCount(); ++i) {
         QStandardItem* item = m_downloadedModel->item(i);
-        if (item && item->text().contains(pictureName)) {
-            // Actualizar el progreso (rol personalizado)
+        if (!item) continue;
+        QString pureName = item->data(ItemNameRole).toString();
+        if (pureName == pictureName) {
             item->setData(progress, ImageCardDelegate::ProgressRole);
-            // Forzar actualización visual del viewport
             ui->DownloadedPictureList->viewport()->update();
             break;
         }
     }
 }
-
 /**
  * @brief Destructor.
  *

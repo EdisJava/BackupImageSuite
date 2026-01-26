@@ -71,9 +71,7 @@ QPushButton:pressed {
         </property>
         <property name="icon">
          <iconset resource="resource.qrc">
-          <normaloff>:/icons/favorito.png</normaloff>
-          <activeoff>:/icons/favoritoOFF.png</activeoff>
-          <activeon>:/icons/favorito.png</activeon>:/icons/favorito.png</iconset>
+          <normaloff>:/icons/icons/favorito.png</normaloff>:/icons/icons/favorito.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -166,7 +164,7 @@ QPushButton:pressed {
         </property>
         <property name="icon">
          <iconset resource="resource.qrc">
-          <normaloff>:/icons/ajustes.png</normaloff>:/icons/ajustes.png</iconset>
+          <normaloff>:/icons/icons/ajustes.png</normaloff>:/icons/icons/ajustes.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -206,7 +204,7 @@ QPushButton:pressed {
         </property>
         <property name="icon">
          <iconset resource="resource.qrc">
-          <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
+          <normaloff>:/icons/icons/find.png</normaloff>:/icons/icons/find.png</iconset>
         </property>
         <property name="iconSize">
          <size>

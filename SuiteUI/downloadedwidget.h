@@ -11,6 +11,10 @@
 class QCompleter;
 class QStringListModel;
 
+// Roles internos para identificar de forma única el Picture guardado en cada item
+static const int ItemUrlRole = Qt::UserRole + 100;   // guarda picture.url()
+static const int ItemNameRole = Qt::UserRole + 101;  // guarda picture.nombre() sin sufijos
+
 namespace Ui {
 class DownloadedWidget;
 }

@@ -34,6 +34,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Establece el título de la ventana principal (traducible)
+    setWindowTitle(tr("Gallery"));
+
+    // Establece el icono de la aplicación desde los recursos Qt
+    setWindowIcon(QIcon(":icons/icons/logo.png"));
+
     // Obtener la ruta del proyecto (se busca hacia arriba desde el ejecutable)
     QString projectPath = getProjectPath();
 
