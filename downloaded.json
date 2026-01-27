@@ -1,10 +1,30 @@
 [
     {
         "descargada": true,
+        "descripcion": "Tranvia rojo entre arboles en otoño",
+        "favorito": false,
+        "nombre": "Tranvia entre arboles",
+        "url": "images/tranvia.jpeg"
+    },
+    {
+        "descargada": true,
         "descripcion": "Paisaje de montaña",
-        "expirationDate": "2026-02-02",
         "favorito": false,
         "nombre": "Paisaje Montaña",
-        "url": "C:/Users/Edgar/Pictures/ImageSuit/montaña.jpeg"
+        "url": "images/montaña.jpeg"
+    },
+    {
+        "descargada": true,
+        "descripcion": "Un cuadrado rojo simple",
+        "favorito": false,
+        "nombre": "Cuadrado Rojo",
+        "url": "images/test.png"
+    },
+    {
+        "descargada": true,
+        "descripcion": "Un fondo de pantalla de windows",
+        "favorito": false,
+        "nombre": "Fondo de pantalla windows",
+        "url": "images/wallpaper"
     }
 ]
