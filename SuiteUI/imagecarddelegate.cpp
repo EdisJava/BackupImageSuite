@@ -84,13 +84,18 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     if (expired) {
         fillColor = QColor(255, 120, 120, 150);  // rojo suave semi-transparente
-        borderColor = QColor(200, 0, 0);          // borde rojo
+        // Borde más grueso y diferente si está seleccionada
+        borderColor = selected ? QColor(255, 165, 0) : QColor(200, 0, 0);
     } else if (selected) {
         fillColor = QColor(255, 165, 0, 10);
+        borderColor = QColor(255, 165, 0);
+    } else {
+        borderColor = QColor(220, 220, 220);
     }
 
     // Dibujar fondo de la tarjeta
-    painter->setPen(QPen(borderColor, 1));
+    int borderWidth = selected ? 3 : 1;
+    painter->setPen(QPen(borderColor, borderWidth));
     painter->setBrush(fillColor);
     painter->drawRoundedRect(QRect(0, 0, s.width(), s.height()), 10, 10);
 
