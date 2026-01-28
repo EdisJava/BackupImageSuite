@@ -14,34 +14,40 @@
         <translation>Disponibles para descargar</translation>
     </message>
     <message>
-        <location filename="../downloadwidget.cpp" line="64"/>
         <source>Expired</source>
-        <translation>Caducado</translation>
+        <translation type="vanished">Caducado</translation>
     </message>
     <message>
-        <location filename="../downloadwidget.cpp" line="65"/>
         <source>This image is expired. You can download but no open it</source>
-        <translation>La imagen ha caducado. Podras descargarla pero no abrirla</translation>
+        <translation type="vanished">La imagen ha caducado. Podras descargarla pero no abrirla</translation>
     </message>
     <message>
-        <location filename="../downloadwidget.cpp" line="80"/>
+        <location filename="../downloadwidget.cpp" line="78"/>
         <source>Info</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../downloadwidget.cpp" line="80"/>
+        <location filename="../downloadwidget.cpp" line="78"/>
         <source>URL: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../downloadwidget.cpp" line="174"/>
-        <source>Succes</source>
-        <translation>Exito</translation>
+        <location filename="../downloadwidget.cpp" line="173"/>
+        <source>Completado</source>
+        <translation>Completado</translation>
     </message>
     <message>
-        <location filename="../downloadwidget.cpp" line="174"/>
+        <location filename="../downloadwidget.cpp" line="173"/>
+        <source>Todas las imágenes se han descargado.</source>
+        <translation>Todas las imágenes se han descargado.</translation>
+    </message>
+    <message>
+        <source>Succes</source>
+        <translation type="vanished">Exito</translation>
+    </message>
+    <message>
         <source>Mass download succesfully.</source>
-        <translation>Descarga masiva exitosa.</translation>
+        <translation type="vanished">Descarga masiva exitosa.</translation>
     </message>
 </context>
 <context>
@@ -76,35 +82,35 @@
         <translation>Introduce el nombre para buscar</translation>
     </message>
     <message>
-        <location filename="../downloadedwidget.cpp" line="52"/>
-        <location filename="../downloadedwidget.cpp" line="194"/>
+        <location filename="../downloadedwidget.cpp" line="53"/>
+        <location filename="../downloadedwidget.cpp" line="202"/>
         <source>Showing all</source>
         <translation>Mostrando todos</translation>
     </message>
     <message>
-        <location filename="../downloadedwidget.cpp" line="139"/>
+        <location filename="../downloadedwidget.cpp" line="140"/>
         <source>Info</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../downloadedwidget.cpp" line="139"/>
+        <location filename="../downloadedwidget.cpp" line="140"/>
         <source>Name: %1
 URL: %2</source>
         <translation>Nombre: %1
 URL: %2</translation>
     </message>
     <message>
-        <location filename="../downloadedwidget.cpp" line="157"/>
+        <location filename="../downloadedwidget.cpp" line="158"/>
         <source>Expired</source>
         <translation>Caducado</translation>
     </message>
     <message>
-        <location filename="../downloadedwidget.cpp" line="157"/>
+        <location filename="../downloadedwidget.cpp" line="158"/>
         <source>This image is expired and cannot be opened</source>
         <translation>Esta imagen ha caducado y no puede ser abierta</translation>
     </message>
     <message>
-        <location filename="../downloadedwidget.cpp" line="193"/>
+        <location filename="../downloadedwidget.cpp" line="201"/>
         <source>Showing favourites</source>
         <translation>Mostrando Favoritos</translation>
     </message>
