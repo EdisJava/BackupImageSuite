@@ -15,8 +15,7 @@ SOURCES += \
     imagecarddelegate.cpp \
     imageviewer.cpp \
     main.cpp \
-    mainwindow.cpp \
-
+    mainwindow.cpp
 
 HEADERS += \
     cardcontrols.h \

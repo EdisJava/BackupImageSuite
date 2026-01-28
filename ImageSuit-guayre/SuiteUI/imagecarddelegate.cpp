@@ -78,7 +78,7 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     bool selected = option.state & QStyle::State_Selected;
     bool expired = index.data(ExpiredRole).toBool();
 
-    // Colores según estado
+    // Determinar colores según estado
     QColor borderColor = selected ? QColor(255, 165, 0) : QColor(220, 220, 220);
     QColor fillColor = Qt::white;
 
@@ -98,69 +98,68 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     painter->setBrush(fillColor);
     painter->drawRoundedRect(QRect(0, 0, s.width(), s.height()), 10, 10);
 
-    // Rects de botones
+    // Calcular rectángulos de botones
     QRect favR, infR, delR, progR;
     getRectsLocal(s, m_mode, favR, infR, delR, progR);
 
     // Dibujar icono/imagen y texto
     QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-    int textBottomY = 0;
     if (m_mode == Grid) {
-        // Imagen grande
+        // Modo Grid: imagen grande + texto con word wrap
         painter->drawPixmap(QRect(10, 10, s.width() - 20, 130), icon.pixmap(150, 150));
         painter->setPen(Qt::black);
 
-        // Texto debajo de la imagen
         int textY = 145;
-        int textHeight = s.height() - textY - 45; // espacio hasta botones
-        QRect textRect(5, textY, s.width() - 10, textHeight);
-        painter->drawText(textRect, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap,
-                          index.data().toString());
+        int textHeight = s.height() - textY - 45;
 
-        textBottomY = textRect.top() + textRect.height();
+        painter->drawText(QRect(5, textY, s.width() - 10, textHeight),
+                          Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap,
+                          index.data().toString());
     } else {
-        // Modo List
+        // Modo List: imagen pequeña + texto
         painter->drawPixmap(10, 10, 60, 60, icon.pixmap(60, 60));
         painter->setPen(Qt::black);
         painter->drawText(QRect(85, 5, favR.left() - 90, 40),
                           Qt::AlignCenter | Qt::AlignVCenter,
                           index.data().toString());
-        textBottomY = 10 + 60; // imagen + margen
     }
 
-    // Barra de progreso
+    // Dibujar barra de progreso
     int progress = index.data(ProgressRole).toInt();
     if (progress >= 0) {
-        QRect progressRect;
-        if (m_mode == Grid) {
-            int margin = 5;
-            int buttonAreaHeight = 35; // altura reservada para botones
-            int progressHeight = 8;
+        QRect targetProgRect;
 
-            int progY = std::min(textBottomY + margin, s.height() - buttonAreaHeight - progressHeight - margin);
-            progressRect = QRect(10, progY, s.width() - 20, progressHeight);
+        if (m_mode == Grid) {
+            // Superpuesta en la mitad de la foto
+            int bw = s.width() * 0.8;
+            int bh = 22;
+            targetProgRect = QRect((s.width() - bw) / 2, 64, bw, bh);
+            painter->setOpacity(0.85);
         } else {
-            progressRect = progR;
+            // Modo List: centrada verticalmente
+            int bh = 18;
+            targetProgRect = QRect(progR.x(), (s.height() / 2) - (bh / 2) + 5, progR.width(), bh);
         }
 
-        // Fondo gris
+        // Fondo de la barra
         painter->setPen(Qt::NoPen);
         painter->setBrush(QColor(230, 230, 230));
-        painter->drawRoundedRect(progressRect, 5, 5);
+        painter->drawRoundedRect(targetProgRect, 5, 5);
 
-        // Relleno naranja
+        // Relleno de progreso
         painter->setBrush(QColor(255, 165, 0));
-        painter->drawRoundedRect(progressRect.left(), progressRect.top(),
-                                 (progressRect.width() * progress) / 100,
-                                 progressRect.height(), 5, 5);
+        painter->drawRoundedRect(targetProgRect.left(), targetProgRect.top(),
+                                 (targetProgRect.width() * progress) / 100,
+                                 targetProgRect.height(), 5, 5);
 
-        // Texto %
+        // Texto del porcentaje
+        painter->setOpacity(1.0);
         painter->setPen(Qt::black);
         painter->setFont(QFont("Arial", 8, QFont::Bold));
-        painter->drawText(progressRect, Qt::AlignCenter, QString("%1%").arg(progress));
+        painter->drawText(targetProgRect, Qt::AlignCenter, QString("%1%").arg(progress));
     }
 
-    // Lambda para dibujar botones circulares
+    // Función lambda para dibujar botones circulares
     auto drawButton = [&](const QRect &rect, const QString &text,
                           QColor background, QColor foreground) {
         painter->setBrush(background);
@@ -170,7 +169,7 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         painter->drawText(rect, Qt::AlignCenter, text);
     };
 
-    // Botón favorito
+    // Dibujar botón de favorito
     QVariant favoriteData = index.data(FavoriteRole);
     if (favoriteData.isValid()) {
         bool isFavorite = favoriteData.toBool();
@@ -180,10 +179,10 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
                    isFavorite ? QColor(255, 180, 0) : Qt::gray);
     }
 
-    // Botón info
+    // Dibujar botón de información
     drawButton(infR, "i", QColor(240, 240, 240), Qt::black);
 
-    // Botón eliminar
+    // Dibujar botón de eliminar
     if (index.data(DownloadedRole).toBool()) {
         drawButton(delR, "✕", QColor(255, 230, 230), Qt::red);
     }
@@ -258,7 +257,7 @@ bool ImageCardDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, co
 /**
  * @brief Devuelve el tamaño sugerido para un item según el modo.
  *
- * En modo Grid devuelve un tamaño dependiente del ancho del texto . En modo List devuelve un tamaño con
+ * En modo Grid devuelve un tamaño dependiente del ancho del texto. En modo List devuelve un tamaño con
  * ancho fijo (aquí fijado a 400) y altura 85. Puedes optar por usar option.rect.width()
  * para que ocupe el ancho del viewport (más flexible).
  */
@@ -267,25 +266,26 @@ QSize ImageCardDelegate::sizeHint(const QStyleOptionViewItem &option, const QMod
     if (m_mode == List) {
         return QSize(400, 85);
     }
-      // Modo Grid - calcular altura dinámica según el texto
-     QString text = index.data(Qt::DisplayRole).toString();
+    
+    // Modo Grid - calcular altura dinámica según el texto
+    QString text = index.data(Qt::DisplayRole).toString();
 
     // Crear QFontMetrics para calcular el tamaño del texto
-     QFontMetrics fm(option.font);
+    QFontMetrics fm(option.font);
 
-     // Calcular el rectángulo que necesita el texto con word wrap
-     int textWidth = 170;  // Ancho disponible para el texto (180 - márgenes)
-     QRect textRect = fm.boundingRect(
-         0, 0, textWidth, 1000,  // Ancho fijo, alto ilimitado
-         Qt::AlignCenter | Qt::TextWordWrap,
-         text
-         );
+    // Calcular el rectángulo que necesita el texto con word wrap
+    int textWidth = 170;  // Ancho disponible para el texto (180 - márgenes)
+    QRect textRect = fm.boundingRect(
+        0, 0, textWidth, 1000,  // Ancho fijo, alto ilimitado
+        Qt::AlignCenter | Qt::TextWordWrap,
+        text
+    );
 
-     // Altura base: imagen(130) + margen(15) + botones(40) + padding(10)
-     int baseHeight = 195;
+    // Altura base: imagen(130) + margen(15) + botones(40) + padding(10)
+    int baseHeight = 195;
 
-     // Añadir la altura del texto (mínimo 30 para una línea, máximo 90 para 3 líneas)
-     int textHeight = qMax(30, qMin(textRect.height() + 10, 90));
+    // Añadir la altura del texto (mínimo 30 para una línea, máximo 90 para 3 líneas)
+    int textHeight = qMax(30, qMin(textRect.height() + 10, 90));
 
-     return QSize(180, baseHeight + textHeight);
+    return QSize(180, baseHeight + textHeight);
 }

@@ -34,7 +34,6 @@ public:
     bool loadDownloaded(const QString& filepath);
     bool saveDownloaded(const QString& filepath);
 
-
     int indexOf(const QString& name) const;
 
     // Acceso a las listas

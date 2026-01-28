@@ -20,8 +20,11 @@
 #include <QListView>
 #include <QPushButton>
 #include <QDebug>
+<<<<<<< HEAD
+=======
 #include <QRandomGenerator>
 #include <QtConcurrent>
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 
 /**
  * @brief Constructor.
@@ -57,6 +60,24 @@ DownloadWidget::DownloadWidget(QWidget *parent)
 
     // Doble clic sobre un item: inicia la descarga de ese item si no estamos en descarga masiva
     connect(m_delegate, &ImageCardDelegate::doubleClicked, this, [this](const QModelIndex &idx){
+<<<<<<< HEAD
+        if (!m_isDownloadingAll && m_pictureManager) {
+            const auto &list = m_pictureManager->toDownload();
+            if (idx.row() >= 0 && idx.row() < list.size()) {
+                const auto &pic = list.at(idx.row());
+                if (pic.isExpired()) {
+                    // Informar al usuario si la imagen está caducada (se permite descargar pero no abrir)
+                    QMessageBox::warning(this, tr("Expired"),
+                                         tr("This image is expired. You can download but no open it"));
+                }
+                // Marcar el progreso en el modelo (rol ProgressRole)
+                m_model->setData(idx, 0, ImageCardDelegate::ProgressRole);
+                // Iniciar la descarga pidiendo al PictureManager (ejecutado en la cola de eventos)
+                m_pictureManager->downloadPicture(idx.row());
+            }
+        }
+    });
+=======
     if (m_pictureManager) {
         QString name = idx.data(Qt::DisplayRole).toString();
         int progress = idx.data(ImageCardDelegate::ProgressRole).toInt();
@@ -69,6 +90,7 @@ DownloadWidget::DownloadWidget(QWidget *parent)
         });
     }
 });
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 
     // Info: mostrar URL en un mensaje informativo
     connect(m_delegate, &ImageCardDelegate::infoRequested, this, [this](const QModelIndex &idx){
@@ -137,6 +159,18 @@ void DownloadWidget::refreshList() {
  * problemas si se invoca desde contextos distintos.
  */
 void DownloadWidget::onDownloadAllClicked() {
+<<<<<<< HEAD
+    if (!m_pictureManager || m_pictureManager->toDownload().isEmpty() || m_isDownloadingAll) return;
+    m_isDownloadingAll = true;
+    ui->DownloadAllButton->setEnabled(false);
+
+    // Llamada encolada para iniciar la primera descarga (evita reentradas)
+    QMetaObject::invokeMethod(m_pictureManager, [this](){
+        if (m_pictureManager) m_pictureManager->downloadPicture(0);
+    }, Qt::QueuedConnection);
+}
+
+=======
     if (!m_pictureManager || m_pictureManager->toDownload().isEmpty()) return;
 
     m_isDownloadingAll = true;
@@ -154,6 +188,7 @@ void DownloadWidget::onDownloadAllClicked() {
         });
     }
 }
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 /**
  * @brief Slot que se llama cuando PictureManager emite pictureDownloaded.
  *
@@ -167,13 +202,28 @@ void DownloadWidget::onPictureDownloaded(const Picture &picture) {
     refreshList();
 
     if (m_isDownloadingAll && m_pictureManager) {
+<<<<<<< HEAD
+        if (!m_pictureManager->toDownload().isEmpty()) {
+            // Iniciar la siguiente descarga en la cola de eventos
+            QMetaObject::invokeMethod(m_pictureManager, [this](){
+                if (m_pictureManager) m_pictureManager->downloadPicture(0);
+            }, Qt::QueuedConnection);
+        } else {
+            // Finalizado
+            m_isDownloadingAll = false;
+            ui->DownloadAllButton->setEnabled(true);
+            QMessageBox::information(this, tr("Succes"), tr("Mass download succesfully."));
+        }
+    }
+
+=======
         if (m_pictureManager->toDownload().isEmpty()) {
             m_isDownloadingAll = false;
             ui->DownloadAllButton->setEnabled(true); // <--- Aquí se reactiva
             QMessageBox::information(this, tr("Completado"), tr("Todas las imágenes se han descargado."));
         }
     }
-
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
     emit pictureDownloaded();
 }
 

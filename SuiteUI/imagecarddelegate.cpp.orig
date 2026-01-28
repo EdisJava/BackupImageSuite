@@ -78,12 +78,20 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     bool selected = option.state & QStyle::State_Selected;
     bool expired = index.data(ExpiredRole).toBool();
 
+<<<<<<< HEAD
     // Colores según estado
+=======
+    // Determinar colores según estado
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
     QColor borderColor = selected ? QColor(255, 165, 0) : QColor(220, 220, 220);
     QColor fillColor = Qt::white;
 
     if (expired) {
+<<<<<<< HEAD
+        fillColor = QColor(255, 120, 120, 150);
+=======
         fillColor = QColor(255, 120, 120, 150);  // rojo suave semi-transparente
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
         borderColor = selected ? QColor(255, 165, 0) : QColor(200, 0, 0);
     } else if (selected) {
         fillColor = QColor(255, 165, 0, 10);
@@ -92,17 +100,22 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         borderColor = QColor(220, 220, 220);
     }
 
+<<<<<<< HEAD
+    // Fondo de la tarjeta
+=======
     // Dibujar fondo de la tarjeta
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
     int borderWidth = selected ? 3 : 1;
     painter->setPen(QPen(borderColor, borderWidth));
     painter->setBrush(fillColor);
     painter->drawRoundedRect(QRect(0, 0, s.width(), s.height()), 10, 10);
 
+<<<<<<< HEAD
     // Rects de botones
     QRect favR, infR, delR, progR;
     getRectsLocal(s, m_mode, favR, infR, delR, progR);
 
-    // Dibujar icono/imagen y texto
+    // Icono y texto
     QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
     int textBottomY = 0;
     if (m_mode == Grid) {
@@ -120,11 +133,33 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         textBottomY = textRect.top() + textRect.height();
     } else {
         // Modo List
+=======
+    // Calcular rectángulos de botones
+    QRect favR, infR, delR, progR;
+    getRectsLocal(s, m_mode, favR, infR, delR, progR);
+
+    // Dibujar icono/imagen y texto
+    QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+    if (m_mode == Grid) {
+        // Modo Grid: imagen grande + texto con word wrap
+        painter->drawPixmap(QRect(10, 10, s.width() - 20, 130), icon.pixmap(150, 150));
+        painter->setPen(Qt::black);
+
+        int textY = 145;
+        int textHeight = s.height() - textY - 45;
+
+        painter->drawText(QRect(5, textY, s.width() - 10, textHeight),
+                          Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap,
+                          index.data().toString());
+    } else {
+        // Modo List: imagen pequeña + texto
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
         painter->drawPixmap(10, 10, 60, 60, icon.pixmap(60, 60));
         painter->setPen(Qt::black);
         painter->drawText(QRect(85, 5, favR.left() - 90, 40),
                           Qt::AlignCenter | Qt::AlignVCenter,
                           index.data().toString());
+<<<<<<< HEAD
         textBottomY = 10 + 60; // imagen + margen
     }
 
@@ -161,6 +196,45 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     }
 
     // Lambda para dibujar botones circulares
+=======
+    }
+
+    // Dibujar barra de progreso
+    int progress = index.data(ProgressRole).toInt();
+    if (progress >= 0) {
+        QRect targetProgRect;
+
+        if (m_mode == Grid) {
+            // Superpuesta en la mitad de la foto
+            int bw = s.width() * 0.8;
+            int bh = 22;
+            targetProgRect = QRect((s.width() - bw) / 2, 64, bw, bh);
+            painter->setOpacity(0.85);
+        } else {
+            int bh = 18; // Altura fija para que se vea bien
+            targetProgRect = QRect(progR.x(), (s.height() / 2) - (bh / 2) + 5, progR.width(), bh);
+        }
+
+        // Fondo de la barra
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(QColor(230, 230, 230));
+        painter->drawRoundedRect(targetProgRect, 5, 5);
+
+        // Relleno de progreso
+        painter->setBrush(QColor(255, 165, 0));
+        painter->drawRoundedRect(targetProgRect.left(), targetProgRect.top(),
+                                 (targetProgRect.width() * progress) / 100,
+                                 targetProgRect.height(), 5, 5);
+
+        // Texto del porcentaje
+        painter->setOpacity(1.0);
+        painter->setPen(Qt::black);
+        painter->setFont(QFont("Arial", 8, QFont::Bold));
+        painter->drawText(targetProgRect, Qt::AlignCenter, QString("%1%").arg(progress));
+    }
+
+    // Función lambda para dibujar botones circulares
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
     auto drawButton = [&](const QRect &rect, const QString &text,
                           QColor background, QColor foreground) {
         painter->setBrush(background);
@@ -170,7 +244,11 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         painter->drawText(rect, Qt::AlignCenter, text);
     };
 
+<<<<<<< HEAD
     // Botón favorito
+=======
+    // Dibujar botón de favorito
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
     QVariant favoriteData = index.data(FavoriteRole);
     if (favoriteData.isValid()) {
         bool isFavorite = favoriteData.toBool();
@@ -180,17 +258,27 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
                    isFavorite ? QColor(255, 180, 0) : Qt::gray);
     }
 
+<<<<<<< HEAD
     // Botón info
     drawButton(infR, "i", QColor(240, 240, 240), Qt::black);
 
     // Botón eliminar
+=======
+    // Dibujar botón de información
+    drawButton(infR, "i", QColor(240, 240, 240), Qt::black);
+
+    // Dibujar botón de eliminar
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
     if (index.data(DownloadedRole).toBool()) {
         drawButton(delR, "✕", QColor(255, 230, 230), Qt::red);
     }
 
     painter->restore();
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 /**
  * @brief Maneja eventos de ratón para detectar clicks sobre botones dentro de la tarjeta.
  *

@@ -25,7 +25,10 @@
 #include <QSortFilterProxyModel>
 #include <QDate>
 #include <QDebug>
+<<<<<<< HEAD
+=======
 #include <QtConcurrent>
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 
 /**
  * @brief Constructor.
@@ -137,7 +140,11 @@ void DownloadedWidget::setupConnections() {
             // Buscar Picture en PictureManager::downloaded() por URL
             for (const auto &pic : m_pictureManager->downloaded()) {
                 if (pic.url() == url) {
+<<<<<<< HEAD
                     QMessageBox::information(this, tr("Info"), tr("Name: %1\nURL: %2").arg(pic.nombre(), pic.url()));
+=======
+                    QMessageBox::information(this, tr("Info"), tr("Nombre: %1\nURL: %2").arg(pic.nombre(), pic.url()));
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
                     break;
                 }
             }
@@ -170,9 +177,14 @@ void DownloadedWidget::setupConnections() {
         QModelIndex sourceIdx = m_downloadedProxy->mapToSource(idx);
         if (sourceIdx.isValid() && m_pictureManager) {
             QString url = sourceIdx.data(ItemUrlRole).toString();
-
+<<<<<<< HEAD
             if (url.isEmpty()) return;
             // Buscar en m_pictureManager::downloaded() por URL y solicitar eliminación
+            for (const auto &pic : m_pictureManager->downloaded()) {
+                if (pic.url() == url) {
+                    m_pictureManager->removeDownloaded(pic);
+=======
+
             for (const auto &pic : m_pictureManager->downloaded()) {
                 if (pic.url() == url) {
                     // 1. Generar duración aleatoria (5 a 10 segundos para desinstalar)
@@ -182,6 +194,7 @@ void DownloadedWidget::setupConnections() {
                     QtConcurrent::run([this, pic, randomSecs]() {
                         m_pictureManager->removeDownloaded(pic, randomSecs);
                     });
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
                     break;
                 }
             }
@@ -197,6 +210,7 @@ void DownloadedWidget::setupConnections() {
     // Botón filtro de favoritos: al alternar invoca refreshList()
     connect(ui->btnFilterFavorites, &QPushButton::toggled, this, &DownloadedWidget::refreshList);
 
+<<<<<<< HEAD
     //Constantes para poder traducirlas sin forzar en la lambda
     const QString textFavorites = tr("Showing favourites");
     const QString textAll = tr("Showing all");
@@ -205,6 +219,13 @@ void DownloadedWidget::setupConnections() {
             this, [this, textFavorites, textAll](bool checked) {
                 ui->LabelFilterFavourites->setText(
                     checked ? textFavorites : textAll
+=======
+    connect(ui->btnFilterFavorites, &QPushButton::toggled,
+            this, [this](bool checked) {
+                ui->LabelFilterFavourites->setText(
+                    checked ? tr("Showing favourites")
+                            : tr("Showing all")
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
                     );
             });
 

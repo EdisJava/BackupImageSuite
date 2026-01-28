@@ -22,11 +22,8 @@
 #include <QTimer>
 #include <QDate>
 #include <QDebug>
-<<<<<<< HEAD
-=======
 #include <QThread>
 #include <QMutexLocker>
->>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 
 /**
  * @brief Constructor.
@@ -135,59 +132,15 @@ bool PictureManager::saveDownloaded(const QString& filepath) {
  *  - guarda el estado descargado y emite pictureDownloaded(p).
  *
  * @param index Índice relativo dentro de la lista devuelta por toDownload().
+ * @param seconds Duración en segundos de la simulación de descarga.
  */
-<<<<<<< HEAD
-void PictureManager::downloadPicture(int index) {
-=======
 void PictureManager::downloadPicture(int index, int seconds) {
     // 1. Obtener la información básica de la imagen a descargar
     // Lo hacemos fuera del mutex porque toDownload() ya devuelve una copia
->>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
     QList<Picture> list = toDownload();
     if (index < 0 || index >= list.size()) return;
 
     QString targetUrl = list[index].url();
-<<<<<<< HEAD
-
-    QTimer* timer = new QTimer(this);
-    int* progress = new int(0);
-
-    connect(timer, &QTimer::timeout, this, [this, timer, progress, targetUrl]() {
-        *progress += 10;
-
-        for (Picture& p : m_pictures) {
-            if (p.url() == targetUrl) {
-                emit downloadProgress(*progress, p.nombre());
-
-                if (*progress >= 100) {
-                    p.setDescargada(true);
-                    p.setFilePath(m_basePath + "/images/" + p.nombre() + ".jpg");
-
-                    // Si no tiene fecha de caducidad válida, asignar una por defecto.
-                    // Aquí hay una regla de ejemplo para marcar una imagen concreta como caducada.
-                    if (!p.expirationDate().isValid()) {
-                        if (p.nombre() == "Tranvia entre arboles") {
-                            // Esta imagen la marcamos explícitamente como caducada (ejemplo).
-                            p.setExpirationDate(QDate::currentDate().addDays(-3));
-                        } else {
-                            // El resto tendrán 30 días de validez por defecto.
-                            p.setExpirationDate(QDate::currentDate().addDays(30));
-                        }
-                    }
-
-                    timer->stop();
-                    saveDownloaded(getDownloadedJsonPath());
-                    emit pictureDownloaded(p);
-                    timer->deleteLater();
-                    delete progress;
-                }
-                break;
-            }
-        }
-    });
-
-    timer->start(50);
-=======
     QString targetName = list[index].nombre();
 
     // 2. --- CONTROL ANTI-BUG (Triple Click) ---
@@ -232,7 +185,6 @@ void PictureManager::downloadPicture(int index, int seconds) {
 
         m_activeTasks.remove(targetUrl);
     }
->>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 }
 
 /**
@@ -243,53 +195,8 @@ void PictureManager::downloadPicture(int index, int seconds) {
  * pictureRemoved(m_pictures[i]) además de saveDownloaded(...).
  *
  * @param picture Picture a eliminar (por valor; se compara su URL).
+ * @param seconds Duración en segundos de la simulación de eliminación.
  */
-<<<<<<< HEAD
-void PictureManager::removeDownloaded(const Picture& picture) {
-    // Buscar el índice primero
-    int foundIndex = -1;
-    for (int i = 0; i < m_pictures.size(); ++i) {
-        if (m_pictures[i].url() == picture.url()) {
-            foundIndex = i;
-            break;
-        }
-    }
-
-    if (foundIndex == -1) return;
-
-    // Copiar datos necesarios para el timer/lambda
-    QString pictureName = m_pictures[foundIndex].nombre();
-    QString pictureUrl = m_pictures[foundIndex].url();
-
-    // Simular progreso de eliminación
-    int* progress = new int(0);
-    QTimer* timer = new QTimer(this);
-
-    connect(timer, &QTimer::timeout, this, [this, timer, progress, pictureName, pictureUrl]() mutable {
-        *progress += 20;
-        emit downloadProgress(*progress, pictureName);
-
-        if (*progress >= 100) {
-            timer->stop();
-            timer->deleteLater();
-            delete progress;
-
-            // Buscar de nuevo el índice por si cambió
-            for (int i = 0; i < m_pictures.size(); ++i) {
-                if (m_pictures[i].url() == pictureUrl) {
-                    m_pictures[i].setDescargada(false);
-                    m_pictures[i].setFavorito(false);
-                    saveDownloaded(getDownloadedJsonPath());
-                    emit downloadProgress(-1, pictureName); // -1 puede significar "sin progreso"
-                    emit pictureRemoved(m_pictures[i]);
-                    break;
-                }
-            }
-        }
-    });
-
-    timer->start(100);
-=======
 void PictureManager::removeDownloaded(const Picture& picture, int seconds) {
     QString pictureName = picture.nombre();
     QString pictureUrl = picture.url();
@@ -334,7 +241,6 @@ void PictureManager::removeDownloaded(const Picture& picture, int seconds) {
         // 4. --- LIBERAR TAREA ---
         m_activeTasks.remove(pictureUrl);
     }
->>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 }
 
 /**
@@ -431,15 +337,13 @@ QVector<Picture> PictureManager::notDownloaded() const {
 /**
  * @brief resuelve las rutas de las imagenes
  * @param relativePath
- * @return  QDir(m_basePath).filePath(relativePath); ruta obsoluta desde el basepath
+ * @return  QDir(m_basePath).filePath(relativePath); ruta absoluta desde el basepath
  */
-
 QString PictureManager::resolveImagePath(const QString& relativePath) const
 {
     if (QFileInfo(relativePath).isAbsolute()) {
         return relativePath;  // Ya es absoluta
     }
-
 
     return QDir(m_basePath).filePath(relativePath);
 }

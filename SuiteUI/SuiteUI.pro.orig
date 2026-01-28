@@ -15,8 +15,12 @@ SOURCES += \
     imagecarddelegate.cpp \
     imageviewer.cpp \
     main.cpp \
+<<<<<<< HEAD
     mainwindow.cpp \
 
+=======
+    mainwindow.cpp
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
 
 HEADERS += \
     cardcontrols.h \
@@ -38,15 +42,29 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SuiteCore/release/ -lSuiteCore
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SuiteCore/debug/ -lSuiteCore
-else:unix: LIBS += -L$$OUT_PWD/../SuiteCore/ -lSuiteCore
+<<<<<<< HEAD
 
-INCLUDEPATH += $$PWD/../SuiteCore
-DEPENDPATH += $$PWD/../SuiteCore
 
 TRANSLATIONS += \
         translations/app_es.ts
 
 RESOURCES += \
     resource.qrc
+
+=======
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SuiteCore/release/ -lSuiteCore
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SuiteCore/debug/ -lSuiteCore
+else:unix: LIBS += -L$$OUT_PWD/../SuiteCore/ -lSuiteCore
+
+INCLUDEPATH += $$PWD/../SuiteCore
+DEPENDPATH += $$PWD/../SuiteCore
+<<<<<<< HEAD
+=======
+
+TRANSLATIONS += \
+        translations/app_es.ts
+
+RESOURCES += \
+    resource.qrc
+>>>>>>> 22891d2 (barra de progreso y añadido la funcion multihilos para que funcione todo por separado)

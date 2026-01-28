@@ -26,6 +26,7 @@
 #include <QDate>
 #include <QDebug>
 #include <QtConcurrent>
+#include <QRandomGenerator>
 
 /**
  * @brief Constructor.
@@ -46,7 +47,7 @@ DownloadedWidget::DownloadedWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //Quitar focus al boton  filtrar favoritos
+    //Quitar focus al boton filtrar favoritos
     ui->btnFilterFavorites->setFocusPolicy(Qt::NoFocus);
 
     //Label de informacion de busqueda
@@ -171,8 +172,6 @@ void DownloadedWidget::setupConnections() {
         if (sourceIdx.isValid() && m_pictureManager) {
             QString url = sourceIdx.data(ItemUrlRole).toString();
 
-            if (url.isEmpty()) return;
-            // Buscar en m_pictureManager::downloaded() por URL y solicitar eliminación
             for (const auto &pic : m_pictureManager->downloaded()) {
                 if (pic.url() == url) {
                     // 1. Generar duración aleatoria (5 a 10 segundos para desinstalar)
@@ -197,19 +196,13 @@ void DownloadedWidget::setupConnections() {
     // Botón filtro de favoritos: al alternar invoca refreshList()
     connect(ui->btnFilterFavorites, &QPushButton::toggled, this, &DownloadedWidget::refreshList);
 
-    //Constantes para poder traducirlas sin forzar en la lambda
-    const QString textFavorites = tr("Showing favourites");
-    const QString textAll = tr("Showing all");
-
     connect(ui->btnFilterFavorites, &QPushButton::toggled,
-            this, [this, textFavorites, textAll](bool checked) {
+            this, [this](bool checked) {
                 ui->LabelFilterFavourites->setText(
-                    checked ? textFavorites : textAll
+                    checked ? tr("Showing favourites")
+                            : tr("Showing all")
                     );
             });
-
-
-
 }
 
 /**
@@ -338,6 +331,7 @@ void DownloadedWidget::onDownloadProgress(int progress, const QString& pictureNa
         }
     }
 }
+
 /**
  * @brief Destructor.
  *

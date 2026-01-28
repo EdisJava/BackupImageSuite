@@ -1,2 +1,15 @@
 [
+    {
+        "descargada": true,
+        "descripcion": "Tranvia rojo entre arboles en otoño",
+        "favorito": false,
+        "nombre": "Tranvia entre arboles",
+        "url": "images/tranvia.jpeg"
+    },
+    {
+        "descargada": true,
+        "descripcion": "Paisaje de montaña",
+        "favorito": false,
+        "nombre": "Paisaje Montaña",
+        "url": "images/montaña.jpeg"
 ]
