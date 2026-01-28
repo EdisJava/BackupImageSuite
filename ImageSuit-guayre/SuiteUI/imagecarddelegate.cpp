@@ -136,7 +136,8 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
             targetProgRect = QRect((s.width() - bw) / 2, 64, bw, bh);
             painter->setOpacity(0.85);
         } else {
-            int bh = 18; // Altura fija para que se vea bien
+            // Modo List: centrada verticalmente
+            int bh = 18;
             targetProgRect = QRect(progR.x(), (s.height() / 2) - (bh / 2) + 5, progR.width(), bh);
         }
 
@@ -188,6 +189,7 @@ void ImageCardDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     painter->restore();
 }
+
 /**
  * @brief Maneja eventos de ratón para detectar clicks sobre botones dentro de la tarjeta.
  *
@@ -255,7 +257,7 @@ bool ImageCardDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, co
 /**
  * @brief Devuelve el tamaño sugerido para un item según el modo.
  *
- * En modo Grid devuelve un tamaño dependiente del ancho del texto . En modo List devuelve un tamaño con
+ * En modo Grid devuelve un tamaño dependiente del ancho del texto. En modo List devuelve un tamaño con
  * ancho fijo (aquí fijado a 400) y altura 85. Puedes optar por usar option.rect.width()
  * para que ocupe el ancho del viewport (más flexible).
  */
@@ -264,25 +266,26 @@ QSize ImageCardDelegate::sizeHint(const QStyleOptionViewItem &option, const QMod
     if (m_mode == List) {
         return QSize(400, 85);
     }
-      // Modo Grid - calcular altura dinámica según el texto
-     QString text = index.data(Qt::DisplayRole).toString();
+    
+    // Modo Grid - calcular altura dinámica según el texto
+    QString text = index.data(Qt::DisplayRole).toString();
 
     // Crear QFontMetrics para calcular el tamaño del texto
-     QFontMetrics fm(option.font);
+    QFontMetrics fm(option.font);
 
-     // Calcular el rectángulo que necesita el texto con word wrap
-     int textWidth = 170;  // Ancho disponible para el texto (180 - márgenes)
-     QRect textRect = fm.boundingRect(
-         0, 0, textWidth, 1000,  // Ancho fijo, alto ilimitado
-         Qt::AlignCenter | Qt::TextWordWrap,
-         text
-         );
+    // Calcular el rectángulo que necesita el texto con word wrap
+    int textWidth = 170;  // Ancho disponible para el texto (180 - márgenes)
+    QRect textRect = fm.boundingRect(
+        0, 0, textWidth, 1000,  // Ancho fijo, alto ilimitado
+        Qt::AlignCenter | Qt::TextWordWrap,
+        text
+    );
 
-     // Altura base: imagen(130) + margen(15) + botones(40) + padding(10)
-     int baseHeight = 195;
+    // Altura base: imagen(130) + margen(15) + botones(40) + padding(10)
+    int baseHeight = 195;
 
-     // Añadir la altura del texto (mínimo 30 para una línea, máximo 90 para 3 líneas)
-     int textHeight = qMax(30, qMin(textRect.height() + 10, 90));
+    // Añadir la altura del texto (mínimo 30 para una línea, máximo 90 para 3 líneas)
+    int textHeight = qMax(30, qMin(textRect.height() + 10, 90));
 
-     return QSize(180, baseHeight + textHeight);
+    return QSize(180, baseHeight + textHeight);
 }

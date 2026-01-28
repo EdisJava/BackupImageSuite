@@ -1,6 +1,13 @@
 [
     {
         "descargada": true,
+        "descripcion": "Paisaje de montaña",
+        "favorito": false,
+        "nombre": "Paisaje Montaña",
+        "url": "images/montaña.jpeg"
+    },
+    {
+        "descargada": true,
         "descripcion": "Un cuadrado rojo simple",
         "favorito": false,
         "nombre": "Cuadrado Rojo",

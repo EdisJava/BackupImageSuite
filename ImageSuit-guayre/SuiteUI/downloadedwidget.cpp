@@ -26,6 +26,7 @@
 #include <QDate>
 #include <QDebug>
 #include <QtConcurrent>
+#include <QRandomGenerator>
 
 /**
  * @brief Constructor.
@@ -46,7 +47,7 @@ DownloadedWidget::DownloadedWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //Quitar focus al boton  filtrar favoritos
+    //Quitar focus al boton filtrar favoritos
     ui->btnFilterFavorites->setFocusPolicy(Qt::NoFocus);
 
     //Label de informacion de busqueda
@@ -137,7 +138,7 @@ void DownloadedWidget::setupConnections() {
             // Buscar Picture en PictureManager::downloaded() por URL
             for (const auto &pic : m_pictureManager->downloaded()) {
                 if (pic.url() == url) {
-                    QMessageBox::information(this, tr("Info"), tr("Nombre: %1\nURL: %2").arg(pic.nombre(), pic.url()));
+                    QMessageBox::information(this, tr("Info"), tr("Name: %1\nURL: %2").arg(pic.nombre(), pic.url()));
                     break;
                 }
             }
@@ -202,9 +203,6 @@ void DownloadedWidget::setupConnections() {
                             : tr("Showing all")
                     );
             });
-
-
-
 }
 
 /**
@@ -333,6 +331,7 @@ void DownloadedWidget::onDownloadProgress(int progress, const QString& pictureNa
         }
     }
 }
+
 /**
  * @brief Destructor.
  *

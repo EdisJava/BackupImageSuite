@@ -50,25 +50,27 @@ DownloadWidget::DownloadWidget(QWidget *parent)
     // Evitar drag & drop para que los usuarios no reordenen la vista manualmente
     DownloadedWidget::disableDragDrop(ui->DownloadPictureList);
 
-
-
     // Botón "Download All" -> inicia la descarga masiva
     connect(ui->DownloadAllButton, &QPushButton::clicked, this, &DownloadWidget::onDownloadAllClicked);
 
-    // Doble clic sobre un item: inicia la descarga de ese item si no estamos en descarga masiva
+    // Doble clic sobre un item: inicia la descarga de ese item
     connect(m_delegate, &ImageCardDelegate::doubleClicked, this, [this](const QModelIndex &idx){
-    if (m_pictureManager) {
-        QString name = idx.data(Qt::DisplayRole).toString();
-        int progress = idx.data(ImageCardDelegate::ProgressRole).toInt();
+        if (m_pictureManager) {
+            QString name = idx.data(Qt::DisplayRole).toString();
+            int progress = idx.data(ImageCardDelegate::ProgressRole).toInt();
 
-        if (progress >= 0) return;
+            // Si ya está en proceso de descarga, no hacer nada
+            if (progress >= 0) return;
 
-        int randomSeconds = QRandomGenerator::global()->bounded(10, 61);
-        QtConcurrent::run([this, idx, randomSeconds]() {
-            m_pictureManager->downloadPicture(idx.row(), randomSeconds);
-        });
-    }
-});
+            // Generar duración aleatoria entre 10 y 60 segundos
+            int randomSeconds = QRandomGenerator::global()->bounded(10, 61);
+            
+            // Lanzar en hilo separado
+            QtConcurrent::run([this, idx, randomSeconds]() {
+                m_pictureManager->downloadPicture(idx.row(), randomSeconds);
+            });
+        }
+    });
 
     // Info: mostrar URL en un mensaje informativo
     connect(m_delegate, &ImageCardDelegate::infoRequested, this, [this](const QModelIndex &idx){
@@ -130,11 +132,8 @@ void DownloadWidget::refreshList() {
 /**
  * @brief Slot invocado al pulsar "Download All".
  *
- * Inicia una descarga en cadena sobre el primer elemento disponible. La lógica
- * encadena llamadas a downloadPicture(0) cada vez que llega la señal pictureDownloaded.
- *
- * Nota: se usa invokeMethod en la cola de eventos para proteger la llamada y evitar
- * problemas si se invoca desde contextos distintos.
+ * Inicia descargas paralelas de todas las imágenes disponibles, cada una con
+ * una duración aleatoria entre 10 y 60 segundos.
  */
 void DownloadWidget::onDownloadAllClicked() {
     if (!m_pictureManager || m_pictureManager->toDownload().isEmpty()) return;
@@ -154,11 +153,12 @@ void DownloadWidget::onDownloadAllClicked() {
         });
     }
 }
+
 /**
  * @brief Slot que se llama cuando PictureManager emite pictureDownloaded.
  *
  * - Refresca la lista,
- * - Si estamos descargando masivamente, lanza la siguiente descarga o finaliza y notifica al usuario.
+ * - Si estamos descargando masivamente y ya no quedan imágenes, finaliza y notifica al usuario.
  *
  * @param picture Picture descargada (no utilizada directamente aquí).
  */
@@ -169,8 +169,8 @@ void DownloadWidget::onPictureDownloaded(const Picture &picture) {
     if (m_isDownloadingAll && m_pictureManager) {
         if (m_pictureManager->toDownload().isEmpty()) {
             m_isDownloadingAll = false;
-            ui->DownloadAllButton->setEnabled(true); // <--- Aquí se reactiva
-            QMessageBox::information(this, tr("Completado"), tr("Todas las imágenes se han descargado."));
+            ui->DownloadAllButton->setEnabled(true);
+            QMessageBox::information(this, tr("Completed"), tr("All images have been downloaded successfully."));
         }
     }
     emit pictureDownloaded();

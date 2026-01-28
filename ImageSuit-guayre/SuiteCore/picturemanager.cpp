@@ -132,6 +132,7 @@ bool PictureManager::saveDownloaded(const QString& filepath) {
  *  - guarda el estado descargado y emite pictureDownloaded(p).
  *
  * @param index Índice relativo dentro de la lista devuelta por toDownload().
+ * @param seconds Duración en segundos de la simulación de descarga.
  */
 void PictureManager::downloadPicture(int index, int seconds) {
     // 1. Obtener la información básica de la imagen a descargar
@@ -194,6 +195,7 @@ void PictureManager::downloadPicture(int index, int seconds) {
  * pictureRemoved(m_pictures[i]) además de saveDownloaded(...).
  *
  * @param picture Picture a eliminar (por valor; se compara su URL).
+ * @param seconds Duración en segundos de la simulación de eliminación.
  */
 void PictureManager::removeDownloaded(const Picture& picture, int seconds) {
     QString pictureName = picture.nombre();
@@ -335,15 +337,13 @@ QVector<Picture> PictureManager::notDownloaded() const {
 /**
  * @brief resuelve las rutas de las imagenes
  * @param relativePath
- * @return  QDir(m_basePath).filePath(relativePath); ruta obsoluta desde el basepath
+ * @return  QDir(m_basePath).filePath(relativePath); ruta absoluta desde el basepath
  */
-
 QString PictureManager::resolveImagePath(const QString& relativePath) const
 {
     if (QFileInfo(relativePath).isAbsolute()) {
         return relativePath;  // Ya es absoluta
     }
-
 
     return QDir(m_basePath).filePath(relativePath);
 }
